@@ -1,0 +1,3 @@
+/Users/willyseah/Documents/cpp random proj/luckyNumber/cmake-build-debug/CMakeFiles/luckyNumber.dir
+/Users/willyseah/Documents/cpp random proj/luckyNumber/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/willyseah/Documents/cpp random proj/luckyNumber/cmake-build-debug/CMakeFiles/rebuild_cache.dir
