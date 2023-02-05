@@ -36,7 +36,11 @@ void slist<T>::push_front(const T &t) {
     p->t = t;
     p->next = head;
     while (!head.compare_exchange_weak(p->next, p)) {
-
+        /**
+         * If head == p->next means is correct, then update head as p.
+         * Checks until it is correct.
+         * If false it means change p->next in parameter to p. So it check if head == p. which is our eventual goal.
+         */
     }
 }
 
