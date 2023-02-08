@@ -1,8 +1,10 @@
 //
 // Created by Willy Seah on 5/2/23.
 //
-#include "LockFreeQueue.h"
+#include "LockFreeStack.h"
 #include <iostream>
+#include <unistd.h>
+
 
 template<typename T>
 slist<T>::slist() {
@@ -36,20 +38,27 @@ void slist<T>::push_front(const T &t) {
     p->t = t;
     p->next = head;
     while (!head.compare_exchange_weak(p->next, p)) {
-        /**
-         * If head == p->next means is correct, then update head as p.
-         * Checks until it is correct.
-         * If false it means change p->next in parameter to p. So it check if head == p. which is our eventual goal.
-         */
+
     }
 }
 
 template<typename T>
-void slist<T>::pop_front(const T &t) {
+void slist<T>::pop_front() {
     Node* p = head.load();
+//    usleep(500);
     while (p && !head.compare_exchange_weak(p, p->next)) {
 
     }
+    std::cout << "deleted " << std::endl;
     delete p;
+}
+
+template<typename T>
+void slist<T>::printList() {
+    Node* p = head.load();
+    while (p != NULL) {
+        std::cout << p->t << std::endl;
+        p = p->next;
+    }
 }
 

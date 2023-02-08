@@ -15,7 +15,8 @@ public:
     ~slist();
     T* find(const T& t) const;
     void push_front(const T& t);
-    void pop_front(const T& t);
+    void pop_front();
+    void printList();
 private:
     struct Node{
         T t;

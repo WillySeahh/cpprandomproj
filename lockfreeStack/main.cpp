@@ -1,11 +1,42 @@
 #include <iostream>
-#include "LockFreeQueue.cpp"
+#include "LockFreeStack.cpp"
+#include <thread>
+#include <vector>
+#include <unistd.h>
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    slist<int>* intList = new slist<int>();
-    intList->push_front(1);
-    std::cout << intList->find(1) << std::endl;
+    slist<int> *intList = new slist<int> ();
+
+//    std::vector<std::thread> threads;
+//    for(int i = 0; i < 10; i++) {
+//        std::thread t1(&slist<int>::push_front, intList,i);
+//        threads.push_back(std::move(t1));
+//        usleep(5);
+//    }
+//
+//    for (auto & thread : threads) {
+//        thread.join();
+//    }
+//    intList->printList();
+
+    slist<int> *intList2 = new slist<int> ();
+    std::vector<std::thread> threads2;
+
+    intList2->push_front(1);
+
+    std::thread t2(&slist<int>::pop_front, intList2);
+
+    std::thread t3(&slist<int>::push_front, intList2,2);
+
+    t2.join();
+    t3.join();
+
+    intList2->printList();
+
+
+
+
     delete intList;
     return 0;
 }
@@ -45,6 +76,28 @@ int main() {
  *
  * compare_exchange_weak(expected, newVal) returns bool. Compare atomic object contained value.
  * If contained value == expected, replace with newVal. If false, expected is replaced with contained value.
+ *
+ * Initially I create the thread t1, to create a thead is std::thread t1(&slist<int>::push_front, intList,i);.
+ * Then threads.push_back(t1) does not work because we are copying the thread.
+ * Passing by value means that the parameter is copied into the function. That calls the copy constructor.
+ * We CANNOT copy threads.
+ *
+ * Without the sleep function the order printed will not be 9,8,7... because we have no control over when threads start to run. We create them
+ * and the OS will start a thread whenever it wants. If we want it to be printed in 9,8,7... we force the main thread to go sleep.
+ *
+ * When push front, we create a node, and assign newNode->next = head. To ensure its done, we do
+ * while(!head.compare_exchange_weak(p->next, p)). compare_exchange_weak is true when head == p->next which is what
+ * we want, then it will assign head to be p in an atomic statement. Since its true ->  !true -> break out.
+ *
+ * If head != p->next, p->next is replaced with head. so head.compare_...(head, p). This will be true, then p is assigned
+ * to be new head. (Try to draw out with 2 threads with thread2 coming in and completing after thread 1 does p->next = head.
+ *
+ * For pop_front, we load the head. while the head is not null !head.compare...(p, p->next). If CAS is true, is simple, we just
+ * assign head to be next of p.
+ *
+ * If head != p, head has changed, so expected is replaced with head. head.CAS(head, p->next). is true so head == p->next.
+ * So will delete the new head. (Will not delete a node that was created)
+ *
  *
  * When we use *new* keyword to dynamically allocate memory it wont be automatically deleted so we need to keep
  * in mind to delete something that created by *new*.
